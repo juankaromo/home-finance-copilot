@@ -1,5 +1,3 @@
-"use strict";
-
 import { NextResponse } from "next/server";
 import { airtableBase } from "@/lib/airtable";
 import { hash } from "bcryptjs";
@@ -50,7 +48,7 @@ export async function POST(request: Request) {
     } catch (error: any) {
         console.error("Registration error:", error);
         return NextResponse.json(
-            { error: "Error al registrar el usuario" },
+            { error: "Error al registrar el usuario", details: error.message },
             { status: 500 }
         );
     }
