@@ -18,8 +18,10 @@ export async function getAuthUser() {
             id: payload.userId as string,
             email: payload.email as string,
             name: payload.name as string,
+            customId: payload.customId as string,
         };
-    } catch (error) {
+    } catch (error: any) {
+        console.error("Auth error:", error.message);
         return null;
     }
 }

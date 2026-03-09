@@ -8,6 +8,7 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [birthDate, setBirthDate] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
@@ -21,7 +22,7 @@ export default function RegisterPage() {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, birthDate }),
       });
 
       const data = await res.json();
@@ -54,7 +55,7 @@ export default function RegisterPage() {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
             <input
               type="text"
               required
@@ -62,6 +63,17 @@ export default function RegisterPage() {
               placeholder="Juan Pérez"
               value={name}
               onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Fecha de Nacimiento</label>
+            <input
+              type="date"
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+              value={birthDate}
+              onChange={(e) => setBirthDate(e.target.value)}
             />
           </div>
 

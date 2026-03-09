@@ -34,6 +34,7 @@ export async function POST(request: Request) {
 
         const user = users[0];
         const hashedPassword = user.fields.Password as string;
+        const customId = user.fields.Id as string;
 
         // 2. Verificar la contraseña
         const isPasswordValid = await compare(password, hashedPassword);
@@ -50,6 +51,7 @@ export async function POST(request: Request) {
             userId: user.id,
             email: user.fields.Email,
             name: user.fields.Name,
+            customId: customId,
         })
             .setProtectedHeader({ alg: "HS256" })
             .setExpirationTime("2h")
@@ -57,7 +59,7 @@ export async function POST(request: Request) {
 
         // 4. Devolver la respuesta con el token (y opcionalmente una cookie)
         const response = NextResponse.json(
-            { message: "Login exitoso", name: user.fields.Name },
+            { message: "Login exitoso", name: user.fields.Name, userId: customId },
             { status: 200 }
         );
 
@@ -71,9 +73,9 @@ export async function POST(request: Request) {
 
         return response;
     } catch (error: any) {
-        console.error("Login error:", error);
+        console.error("Login global error:", error.message);
         return NextResponse.json(
-            { error: "Error al iniciar sesión" },
+            { error: "Error al iniciar sesión", detail: error.message },
             { status: 500 }
         );
     }

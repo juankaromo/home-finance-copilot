@@ -1,19 +1,23 @@
 import { NextResponse } from "next/server";
 import { airtableBase } from "@/lib/airtable";
 import { hash } from "bcryptjs";
+import { createHash } from "crypto";
 
 export async function POST(request: Request) {
     try {
-        const { name, email, password } = await request.json();
+        const { name, email, password, birthDate } = await request.json();
 
-        if (!email || !password || !name) {
+        if (!email || !password || !name || !birthDate) {
             return NextResponse.json(
                 { error: "Faltan campos obligatorios" },
                 { status: 400 }
             );
         }
 
-        // 1. Verificar si el usuario ya existe
+        // Generar un ID único basado en el email
+        const generatedId = createHash("md5").update(email.toLowerCase() + Date.now()).digest("hex").substring(0, 12);
+
+        // 1. Verificar si el email ya existe
         const existingUsers = await airtableBase("Users")
             .select({
                 filterByFormula: `{Email} = '${email}'`,
@@ -22,7 +26,7 @@ export async function POST(request: Request) {
 
         if (existingUsers.length > 0) {
             return NextResponse.json(
-                { error: "El usuario ya existe" },
+                { error: "El correo ya está registrado" },
                 { status: 409 }
             );
         }
@@ -37,12 +41,14 @@ export async function POST(request: Request) {
                     Name: name,
                     Email: email,
                     Password: hashedPassword,
+                    Id: generatedId,
+                    BirthDate: birthDate
                 },
             },
         ]);
 
         return NextResponse.json(
-            { message: "Usuario registrado con éxito", userId: record[0].id },
+            { message: "Usuario registrado con éxito", userId: generatedId },
             { status: 201 }
         );
     } catch (error: any) {

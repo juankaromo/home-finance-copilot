@@ -17,4 +17,31 @@ export interface AIAnalysis {
     healthScore: number;
     riskLevel: "Bajo" | "Medio" | "Alto";
     recommendations: string[];
+    Date: string;
 }
+
+export type FinancialEventType = "Amortización" | "Ingreso Extra" | "Gasto Inesperado" | "Meta Alcanzada" | "Otro";
+
+export interface FinancialEvent {
+    id: string;
+    UserId: string;
+    EventType: FinancialEventType;
+    Amount: number;
+    Description: string;
+    Date: string;
+    type: "event";
+}
+
+export interface ProfileUpdate {
+    id: string;
+    Date: string;
+    Description: string;
+    type: "profile_change";
+}
+
+export interface AIInsightHistoryItem extends AIAnalysis {
+    id: string;
+    type: "ai_insight";
+}
+
+export type HistoryItem = FinancialEvent | ProfileUpdate | AIInsightHistoryItem;

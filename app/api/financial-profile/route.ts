@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { airtableBase } from "@/lib/airtable";
 import { getAuthUser } from "@/lib/auth";
+import { createHash } from "crypto";
 
 export const dynamic = "force-dynamic";
 
@@ -12,17 +13,11 @@ export async function GET() {
     }
 
     let profileData = null;
-    let latestInsight = null;
 
     // 1. Obtener Perfil Financiero
     try {
-      // Para mayor robustez, buscamos por ID, Email o Nombre caso de que 
-      // la columna primaria de Users no sea el ID.
-      const profileFormula = `OR(
-        FIND('${user.id}', {UserId}),
-        FIND('${user.email}', {UserId}),
-        FIND('${user.name}', {UserId})
-      )`;
+      const identifiers = [user.id, user.customId].filter(val => val && val !== 'undefined');
+      const profileFormula = `OR(${identifiers.map(id => `{UserId} = '${id}'`).join(',')}, ${identifiers.map(id => `FIND('${id}', {UserId})`).join(',')})`;
 
       const profiles = await airtableBase("FinancialProfiles")
         .select({ filterByFormula: profileFormula })
@@ -33,46 +28,40 @@ export async function GET() {
       }
     } catch (err: any) {
       console.error("Error en tabla FinancialProfiles:", err.message);
-      return NextResponse.json({
-        error: "Error en tabla FinancialProfiles",
-        details: err.message
-      }, { status: 500 });
     }
 
     if (!profileData) {
       return NextResponse.json({ profile: null }, { status: 200 });
     }
 
-    // 2. Obtener Último Insight
+    // 2. Obtener Historial de Insights
+    let allInsights: any[] = [];
     try {
-      const insightFormula = `OR(
-        FIND('${user.id}', {UserId}),
-        FIND('${user.email}', {UserId}),
-        FIND('${user.name}', {UserId})
-      )`;
+      const insightFormula = `OR({UserId} = '${user.id}', {UserId} = '${user.customId}', FIND('${user.id}', {UserId}), FIND('${user.customId}', {UserId}))`;
+
       const insights = await airtableBase("AIInsights")
         .select({
           filterByFormula: insightFormula,
           sort: [{ field: "Date", direction: "desc" }],
-          maxRecords: 1,
         })
         .firstPage();
 
-      if (insights.length > 0) {
-        latestInsight = {
-          healthScore: insights[0].fields.HealthScore,
-          riskLevel: insights[0].fields.RiskLevel,
-          recommendations: (insights[0].fields.Recommendations as string || "").split("\n").filter(Boolean),
-          date: insights[0].fields.Date,
-        };
-      }
+      allInsights = insights.map(r => ({
+        id: r.id,
+        healthScore: r.fields.HealthScore,
+        riskLevel: r.fields.RiskLevel,
+        recommendations: (r.fields.Recommendations as string || "").split("\n").filter(Boolean),
+        Date: r.fields.Date,
+        type: "ai_insight"
+      }));
     } catch (err: any) {
       console.error("Error en tabla AIInsights:", err.message);
     }
 
     return NextResponse.json({
       profile: profileData,
-      insight: latestInsight
+      insight: allInsights.length > 0 ? allInsights[0] : null,
+      allInsights: allInsights
     }, { status: 200 });
   } catch (error: any) {
     console.error("Error global en GET financial-profile:", error.message);
@@ -102,18 +91,15 @@ export async function POST(request: Request) {
       financialGoal,
     } = body;
 
-    // 1. Buscar si ya existe para actualizar (Usando criterios múltiples para robustez)
+    // 1. Buscar si ya existe para actualizar
+    const searchFormula = `OR({UserId} = '${user.id}', {UserId} = '${user.customId}', FIND('${user.id}', {UserId}), FIND('${user.customId}', {UserId}))`;
     const existingRecords = await airtableBase("FinancialProfiles")
       .select({
-        filterByFormula: `OR(
-          FIND('${user.id}', {UserId}),
-          FIND('${user.email}', {UserId}),
-          FIND('${user.name}', {UserId})
-        )`,
+        filterByFormula: searchFormula,
       })
       .firstPage();
 
-    const fields = {
+    const fields: any = {
       UserId: [user.id],
       MonthlyIncome: Number(monthlyIncome),
       MonthlyExpenses: Number(monthlyExpenses),
@@ -129,7 +115,6 @@ export async function POST(request: Request) {
     };
 
     if (existingRecords.length > 0) {
-      // Actualizar
       await airtableBase("FinancialProfiles").update([
         {
           id: existingRecords[0].id,
@@ -137,7 +122,14 @@ export async function POST(request: Request) {
         },
       ]);
     } else {
-      // Crear
+      // Generar un ID único para el perfil
+      const generatedProfileId = createHash("md5")
+        .update(user.customId + "_profile_" + Date.now())
+        .digest("hex")
+        .substring(0, 12);
+
+      fields.Id = generatedProfileId;
+
       await airtableBase("FinancialProfiles").create([
         {
           fields,
