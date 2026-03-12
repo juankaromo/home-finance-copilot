@@ -127,7 +127,26 @@ export default function DashboardPage() {
           <FinancialOverview profile={profile} />
         </section>
 
-        {/* 2. Cálculo de Análisis */}
+        {/* 2. Objetivo Financiero */}
+        {profile?.FinancialGoal && (
+          <section className="space-y-6">
+            <h2 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Tu Gran Objetivo</h2>
+            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-8 text-white shadow-xl shadow-blue-100 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
+              <div className="relative flex items-center gap-6">
+                <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center shrink-0">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                </div>
+                <div>
+                  <h3 className="text-2xl font-black leading-tight mb-1">{profile.FinancialGoal}</h3>
+                  <p className="text-blue-100 font-medium opacity-80">Estamos optimizando tu ahorro para alcanzar esta meta.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* 3. Cálculo de Análisis */}
         <section className="space-y-6">
           <h2 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Cálculo de Análisis</h2>
           {analysis || hasActiveJob ? (

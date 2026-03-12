@@ -13,10 +13,17 @@ export interface FinancialProfile {
     FinancialGoal: string;
 }
 
+export interface AIRecommendation {
+    action: string;
+    priority: "high" | "medium" | "low";
+    impact: string;
+}
+
 export interface AIAnalysis {
     healthScore: number;
     riskLevel: "Bajo" | "Medio" | "Alto";
-    recommendations: string[];
+    summaryPoints?: string[];
+    recommendations: AIRecommendation[];
     Date: string;
 }
 

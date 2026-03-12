@@ -15,7 +15,7 @@ interface AddEventModalProps {
 }
 
 export default function AddEventModal({ isOpen, onClose, onSuccess, initialValue }: AddEventModalProps) {
-    const [eventType, setEventType] = useState<FinancialEventType>("Amortización");
+    const [eventType, setEventType] = useState<FinancialEventType>("amortization");
     const [amount, setAmount] = useState("");
     const [description, setDescription] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
