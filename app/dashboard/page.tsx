@@ -10,6 +10,7 @@ import QuickActions from "@/components/QuickActions";
 import UnifiedHistory from "@/components/UnifiedHistory";
 import AddEventModal from "@/components/AddEventModal";
 import UpdateProfileModal from "@/components/UpdateProfileModal";
+import AICopilotChat from "@/components/AICopilotChat";
 
 import LogoutButton from "@/components/LogoutButton";
 
@@ -123,6 +124,11 @@ export default function DashboardPage() {
       </nav>
 
       <div className="max-w-4xl mx-auto px-4 pt-16 space-y-16">
+        {/* Chat de Copilot (Principal) */}
+        <section className="animate-in slide-in-from-top-8 duration-700">
+          <AICopilotChat />
+        </section>
+
         {/* 1. Bloque de Overview */}
         <section className="space-y-6">
           <h2 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Visión General</h2>
