@@ -3,10 +3,32 @@
 import { AIAnalysis } from "@/types/financial";
 
 interface AIAnalysisBlockProps {
-    analysis: AIAnalysis;
+    analysis: AIAnalysis | null;
+    isLoading?: boolean;
+    onRefresh?: () => void;
 }
 
-export default function AIAnalysisBlock({ analysis }: AIAnalysisBlockProps) {
+export default function AIAnalysisBlock({ analysis, isLoading, onRefresh }: AIAnalysisBlockProps) {
+    if (isLoading || !analysis) {
+        return (
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 flex flex-col items-center text-center space-y-4">
+                <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600 animate-pulse">
+                    <svg className="w-8 h-8 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                </div>
+                <h2 className="text-xl font-bold text-gray-900">Actualizando tu Análisis</h2>
+                <p className="text-gray-500 max-w-sm">
+                    Tu Financial Copilot está procesando los últimos cambios para darte recomendaciones actualizadas.
+                </p>
+                <div className="flex gap-2">
+                    <span className="w-2 h-2 bg-purple-600 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                    <span className="w-2 h-2 bg-purple-600 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                    <span className="w-2 h-2 bg-purple-600 rounded-full animate-bounce"></span>
+                </div>
+            </div>
+        );
+    }
     const getScoreColor = (score: number) => {
         if (score >= 80) return "text-green-600 border-green-200 bg-green-50";
         if (score >= 50) return "text-yellow-600 border-yellow-200 bg-yellow-50";

@@ -80,11 +80,11 @@ export default function AddEventModal({ isOpen, onClose, onSuccess, initialValue
                                 onChange={(e) => setEventType(e.target.value as FinancialEventType)}
                                 className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition"
                             >
-                                <option value="Amortización">Amortización (Hipoteca/Préstamo)</option>
-                                <option value="Ingreso Extra">Ingreso Extra</option>
-                                <option value="Gasto Inesperado">Gasto Inesperado</option>
-                                <option value="Meta Alcanzada">Meta Alcanzada</option>
-                                <option value="Otro">Otro</option>
+                                <option value="amortization">Amortización (Hipoteca/Préstamo)</option>
+                                <option value="extra_income">Ingreso Extra</option>
+                                <option value="unexpected_expense">Gasto Inesperado</option>
+                                <option value="goal_reached">Meta Alcanzada</option>
+                                <option value="other">Otro</option>
                             </select>
                         </div>
 

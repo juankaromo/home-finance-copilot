@@ -20,6 +20,14 @@ export default function UnifiedHistory({ items }: UnifiedHistoryProps) {
         new Date(b.Date).getTime() - new Date(a.Date).getTime()
     );
 
+    const eventTypeLabels: Record<string, string> = {
+        amortization: "Amortización",
+        extra_income: "Ingreso Extra",
+        unexpected_expense: "Gasto Inesperado",
+        goal_reached: "Meta Alcanzada",
+        other: "Otro"
+    };
+
     return (
         <div className="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm">
             <div className="space-y-8">
@@ -36,10 +44,11 @@ export default function UnifiedHistory({ items }: UnifiedHistoryProps) {
 
                             {/* Punto/Icono */}
                             <div className={`absolute left-0 top-1.5 w-7 h-7 rounded-full border-4 border-white shadow-sm flex items-center justify-center z-10 ${item.id === "initial_profile" ? "bg-orange-500" :
-                                    item.type === "ai_insight" ? "bg-purple-500" :
-                                        item.type === "event" && item.EventType === "Ingreso Extra" ? "bg-green-500" :
-                                            item.type === "event" && item.EventType === "Amortización" ? "bg-blue-500" :
-                                                item.type === "event" && item.EventType === "Gasto Inesperado" ? "bg-red-500" :
+                                item.type === "ai_insight" ? "bg-purple-500" :
+                                    item.type === "event" && item.EventType === "extra_income" ? "bg-green-500" :
+                                        item.type === "event" && item.EventType === "amortization" ? "bg-blue-500" :
+                                            item.type === "event" && item.EventType === "unexpected_expense" ? "bg-red-500" :
+                                                item.type === "event" && item.EventType === "goal_reached" ? "bg-yellow-500" :
                                                     item.type === "profile_change" ? "bg-orange-400" : "bg-gray-400"
                                 }`}>
                                 {(item.type === "ai_insight" || item.id === "initial_profile") && (
@@ -63,7 +72,7 @@ export default function UnifiedHistory({ items }: UnifiedHistoryProps) {
                                     <div className="space-y-1">
                                         <h4 className="font-bold text-gray-900 leading-tight">
                                             {item.type === "ai_insight" ? `Salud Financiera: ${item.healthScore}/100` :
-                                                item.type === "event" ? item.EventType :
+                                                item.type === "event" ? (eventTypeLabels[item.EventType] || item.EventType) :
                                                     item.Description}
                                         </h4>
                                         {item.type === "event" && item.Description && (
@@ -72,7 +81,7 @@ export default function UnifiedHistory({ items }: UnifiedHistoryProps) {
                                         {item.type === "ai_insight" && (
                                             <div className="flex gap-2 mt-1">
                                                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${item.riskLevel === "Bajo" ? "bg-green-50 text-green-600" :
-                                                        item.riskLevel === "Medio" ? "bg-yellow-50 text-yellow-600" : "bg-red-50 text-red-600"
+                                                    item.riskLevel === "Medio" ? "bg-yellow-50 text-yellow-600" : "bg-red-50 text-red-600"
                                                     }`}>
                                                     Riesgo {item.riskLevel}
                                                 </span>
@@ -82,10 +91,10 @@ export default function UnifiedHistory({ items }: UnifiedHistoryProps) {
 
                                     {item.type === "event" && (
                                         <div className="text-right">
-                                            <span className={`text-lg font-black ${item.EventType === "Ingreso Extra" ? "text-green-600" :
-                                                    item.EventType === "Amortización" || item.EventType === "Gasto Inesperado" ? "text-red-600" : "text-gray-900"
+                                            <span className={`text-lg font-black ${item.EventType === "extra_income" || item.EventType === "goal_reached" ? "text-green-600" :
+                                                item.EventType === "amortization" || item.EventType === "unexpected_expense" ? "text-red-600" : "text-gray-900"
                                                 }`}>
-                                                {item.EventType === "Ingreso Extra" ? "+" : "-"}
+                                                {item.EventType === "extra_income" || item.EventType === "goal_reached" ? "+" : "-"}
                                                 {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(item.Amount)}
                                             </span>
                                         </div>

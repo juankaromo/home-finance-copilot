@@ -58,10 +58,36 @@ export async function GET() {
       console.error("Error en tabla AIInsights:", err.message);
     }
 
+    // 3. Verificar si hay trabajos de IA pendientes
+    let hasActiveJob = false;
+    let latestJobStatus = null;
+    try {
+      const jobFormula = `OR({UserId} = '${user.id}', {UserId} = '${user.customId}', FIND('${user.id}', {UserId}), FIND('${user.customId}', {UserId}))`;
+      const jobs = await airtableBase("AIJobs")
+        .select({
+          filterByFormula: jobFormula,
+          sort: [{ field: "CreatedAt", direction: "desc" }],
+          maxRecords: 1
+        })
+        .firstPage();
+
+      if (jobs.length > 0) {
+        const status = jobs[0].fields.Status as string;
+        latestJobStatus = status;
+        if (status === "pending" || status === "processing") {
+          hasActiveJob = true;
+        }
+      }
+    } catch (err: any) {
+      console.error("Error en tabla AIJobs:", err.message);
+    }
+
     return NextResponse.json({
       profile: profileData,
       insight: allInsights.length > 0 ? allInsights[0] : null,
-      allInsights: allInsights
+      allInsights: allInsights,
+      hasActiveJob,
+      latestJobStatus
     }, { status: 200 });
   } catch (error: any) {
     console.error("Error global en GET financial-profile:", error.message);
@@ -137,7 +163,26 @@ export async function POST(request: Request) {
       ]);
     }
 
-    return NextResponse.json({ message: "Perfil guardado con éxito" }, { status: 200 });
+    // 2. Crear un AIJob para recalcular insights
+    const jobId = createHash("md5")
+      .update(user.customId + "_profile_job_" + Date.now())
+      .digest("hex")
+      .substring(0, 12);
+
+    await airtableBase("AIJobs").create([
+      {
+        fields: {
+          Id: jobId,
+          UserId: [user.id],
+          JobType: existingRecords.length > 0 ? "periodic_update" : "initial_analysis",
+          Status: "pending",
+          Payload: JSON.stringify(fields),
+          CreatedAt: new Date().toISOString()
+        }
+      }
+    ]);
+
+    return NextResponse.json({ message: "Perfil guardado con éxito. Análisis en cola." }, { status: 200 });
   } catch (error: any) {
     console.error("Error saving financial profile:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });

@@ -17,6 +17,7 @@ export default function DashboardPage() {
   const [profile, setProfile] = useState<FinancialProfile | null>(null);
   const [analysis, setAnalysis] = useState<AIAnalysis | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [hasActiveJob, setHasActiveJob] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,6 +45,7 @@ export default function DashboardPage() {
 
       setProfile(profileData.profile);
       setAnalysis(profileData.insight); // El último insight
+      setHasActiveJob(profileData.hasActiveJob);
 
       // 2. Fetch Eventos
       const eventsRes = await fetch("/api/financial-events");
@@ -128,8 +130,12 @@ export default function DashboardPage() {
         {/* 2. Cálculo de Análisis */}
         <section className="space-y-6">
           <h2 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Cálculo de Análisis</h2>
-          {analysis ? (
-            <AIAnalysisBlock analysis={analysis} />
+          {analysis || hasActiveJob ? (
+            <AIAnalysisBlock
+              analysis={analysis}
+              isLoading={hasActiveJob}
+              onRefresh={() => fetchData(true)}
+            />
           ) : (
             <div className="bg-white rounded-3xl border border-gray-100 p-12 text-center space-y-6 shadow-sm">
               <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center mx-auto animate-bounce">

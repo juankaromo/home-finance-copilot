@@ -20,7 +20,7 @@ export interface AIAnalysis {
     Date: string;
 }
 
-export type FinancialEventType = "Amortización" | "Ingreso Extra" | "Gasto Inesperado" | "Meta Alcanzada" | "Otro";
+export type FinancialEventType = "amortization" | "extra_income" | "unexpected_expense" | "goal_reached" | "other";
 
 export interface FinancialEvent {
     id: string;

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { airtableBase } from "@/lib/airtable";
 import { getAuthUser } from "@/lib/auth";
+import { createHash } from "crypto";
 
 export const dynamic = "force-dynamic";
 
@@ -51,9 +52,16 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Tipo de evento y cantidad son obligatorios" }, { status: 400 });
         }
 
+        // Generar un ID único para el evento
+        const eventId = createHash("md5")
+            .update(user.customId + "_event_" + Date.now())
+            .digest("hex")
+            .substring(0, 12);
+
         const newRecord = await airtableBase("FinancialEvents").create([
             {
                 fields: {
+                    Id: eventId,
                     UserId: [user.id],
                     EventType: eventType,
                     Amount: Number(amount),
@@ -63,8 +71,23 @@ export async function POST(request: Request) {
             }
         ]);
 
+        // Crear un AIJob para recalcular insights tras el evento
+        const jobId = createHash("md5").update(user.customId + "_event_job_" + Date.now()).digest("hex").substring(0, 12);
+        await airtableBase("AIJobs").create([
+            {
+                fields: {
+                    Id: jobId,
+                    UserId: [user.id],
+                    JobType: "financial_event",
+                    Status: "pending",
+                    Payload: JSON.stringify({ eventType, amount, description }),
+                    CreatedAt: new Date().toISOString()
+                }
+            }
+        ]);
+
         return NextResponse.json({
-            message: "Evento registrado con éxito",
+            message: "Evento registrado con éxito y análisis en cola",
             event: newRecord[0].fields
         }, { status: 200 });
     } catch (error: any) {
