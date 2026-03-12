@@ -9,6 +9,7 @@ import AIAnalysisBlock from "@/components/AIAnalysisBlock";
 import QuickActions from "@/components/QuickActions";
 import UnifiedHistory from "@/components/UnifiedHistory";
 import AddEventModal from "@/components/AddEventModal";
+import UpdateProfileModal from "@/components/UpdateProfileModal";
 
 import LogoutButton from "@/components/LogoutButton";
 
@@ -21,6 +22,7 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [modalPrefill, setModalPrefill] = useState<any>(null);
 
   const fetchData = async (silent = false) => {
@@ -176,10 +178,13 @@ export default function DashboardPage() {
           )}
         </section>
 
-        {/* 3. Acciones Recomendadas */}
+        {/* 3. Centro de Control Financiero */}
         <section className="space-y-6">
-          <h2 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Acciones Recomendadas</h2>
-          <QuickActions onAction={handleQuickAction} />
+          <h2 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Centro de Control Financiero</h2>
+          <QuickActions
+            onAction={handleQuickAction}
+            onUpdateProfile={() => setIsUpdateModalOpen(true)}
+          />
         </section>
 
         {/* 4. Historial */}
@@ -197,6 +202,12 @@ export default function DashboardPage() {
         }}
         onSuccess={() => fetchData(true)}
         initialValue={modalPrefill}
+      />
+      <UpdateProfileModal
+        isOpen={isUpdateModalOpen}
+        onClose={() => setIsUpdateModalOpen(false)}
+        onSuccess={() => fetchData(true)}
+        currentProfile={profile}
       />
     </main>
   );

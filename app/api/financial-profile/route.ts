@@ -188,19 +188,6 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const {
-      monthlyIncome,
-      monthlyExpenses,
-      currentSavings,
-      mortgageAmount,
-      mortgageInterest,
-      mortgageYearsRemaining,
-      loanAmount,
-      loanInterest,
-      loanYearsRemaining,
-      children,
-      financialGoal,
-    } = body;
 
     // 1. Buscar si ya existe para actualizar
     const searchFormula = `OR({UserId} = '${user.id}', {UserId} = '${user.customId}', FIND('${user.id}', {UserId}), FIND('${user.customId}', {UserId}))`;
@@ -212,18 +199,19 @@ export async function POST(request: Request) {
 
     const fields: any = {
       UserId: [user.id],
-      MonthlyIncome: Number(monthlyIncome),
-      MonthlyExpenses: Number(monthlyExpenses),
-      CurrentSavings: Number(currentSavings),
-      MortgageAmount: Number(mortgageAmount || 0),
-      MortgageInterest: Number(mortgageInterest || 0),
-      MortgageYearsRemaining: Number(mortgageYearsRemaining || 0),
-      LoanAmount: Number(loanAmount || 0),
-      LoanInterest: Number(loanInterest || 0),
-      LoanYearsRemaining: Number(loanYearsRemaining || 0),
-      Children: Number(children),
-      FinancialGoal: financialGoal,
     };
+
+    if (body.monthlyIncome !== undefined) fields.MonthlyIncome = Number(body.monthlyIncome);
+    if (body.monthlyExpenses !== undefined) fields.MonthlyExpenses = Number(body.monthlyExpenses);
+    if (body.currentSavings !== undefined) fields.CurrentSavings = Number(body.currentSavings);
+    if (body.mortgageAmount !== undefined) fields.MortgageAmount = Number(body.mortgageAmount);
+    if (body.mortgageInterest !== undefined) fields.MortgageInterest = Number(body.mortgageInterest);
+    if (body.mortgageYearsRemaining !== undefined) fields.MortgageYearsRemaining = Number(body.mortgageYearsRemaining);
+    if (body.loanAmount !== undefined) fields.LoanAmount = Number(body.loanAmount);
+    if (body.loanInterest !== undefined) fields.LoanInterest = Number(body.loanInterest);
+    if (body.loanYearsRemaining !== undefined) fields.LoanYearsRemaining = Number(body.loanYearsRemaining);
+    if (body.children !== undefined) fields.Children = Number(body.children);
+    if (body.financialGoal !== undefined) fields.FinancialGoal = body.financialGoal;
 
     if (existingRecords.length > 0) {
       await airtableBase("FinancialProfiles").update([

@@ -16,73 +16,83 @@ interface Action {
 
 interface QuickActionsProps {
     onAction: (prefill: any) => void;
+    onUpdateProfile: () => void;
 }
 
-export default function QuickActions({ onAction }: QuickActionsProps) {
-    const actions: Action[] = [
+export default function QuickActions({ onAction, onUpdateProfile }: QuickActionsProps) {
+    const categories = [
         {
-            title: "Aumentar Fondo de Emergencia",
-            description: "Asegura al menos 6 meses de gastos básicos.",
-            icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
-            color: "bg-blue-600",
-            prefill: {
-                eventType: "other",
-                description: "Ahorro para Fondo de Emergencia"
-            }
+            title: "📈 Impulso y Crecimiento",
+            actions: [
+                {
+                    title: "Ingreso Extra / Bonus",
+                    description: "Registra cobros extraordinarios o aumentos.",
+                    icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
+                    color: "bg-blue-600",
+                    onClick: () => onAction({ eventType: "extra_income", description: "Ingreso extraordinario" })
+                },
+                {
+                    title: "Gasto Inesperado",
+                    description: "Registra facturas o gastos fuera de lo común.",
+                    icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>,
+                    color: "bg-red-500",
+                    onClick: () => onAction({ eventType: "unexpected_expense", description: "Gasto imprevisto" })
+                }
+            ]
         },
         {
-            title: "Reducir Gastos",
-            description: "Identifica fugas de dinero en tus suscripciones.",
-            icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
-            color: "bg-red-500",
-            prefill: {
-                eventType: "other",
-                description: "Reducción de gasto identificada"
-            }
+            title: "⚖️ Optimización de Deuda",
+            actions: [
+                {
+                    title: "Amortización",
+                    description: "Reduce tu deuda de hipoteca o préstamo.",
+                    icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>,
+                    color: "bg-green-600",
+                    onClick: () => onAction({ eventType: "amortization" })
+                }
+            ]
         },
         {
-            title: "Amortización",
-            description: "Reduce tu deuda de hipoteca o préstamo.",
-            icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>,
-            color: "bg-green-600",
-            prefill: {
-                eventType: "amortization"
-            }
-        },
-        {
-            title: "Registrar otro hito",
-            description: "Añade cualquier otro cambio financiero manualmente.",
-            icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>,
-            color: "bg-gray-700",
-            prefill: {
-                eventType: "other"
-            }
-        },
+            title: "⚙️ Ajuste de Perfil Base",
+            actions: [
+                {
+                    title: "Actualizar Mis Cifras",
+                    description: "Cambia tu sueldo, gastos fijos o ahorros totales.",
+                    icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>,
+                    color: "bg-gray-800",
+                    onClick: () => onUpdateProfile()
+                }
+            ]
+        }
     ];
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {actions.map((action) => (
-                <div
-                    key={action.title}
-                    className="group p-6 rounded-3xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
-                >
-                    <div className="flex gap-5">
-                        <div className={`w-14 h-14 shrink-0 ${action.color} text-white rounded-2xl flex items-center justify-center group-hover:scale-105 transition-transform shadow-lg shadow-gray-200`}>
-                            {action.icon}
-                        </div>
-                        <div>
-                            <h4 className="font-black text-gray-900 mb-1">{action.title}</h4>
-                            <p className="text-sm text-gray-500 font-medium leading-relaxed">{action.description}</p>
-                        </div>
+        <div className="space-y-10">
+            {categories.map((category) => (
+                <div key={category.title} className="space-y-4">
+                    <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">
+                        {category.title}
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {category.actions.map((action) => (
+                            <button
+                                key={action.title}
+                                onClick={action.onClick}
+                                className="group p-5 rounded-3xl border border-gray-100 bg-white shadow-sm hover:border-purple-200 hover:shadow-md transition-all flex items-center gap-5 text-left"
+                            >
+                                <div className={`w-12 h-12 shrink-0 ${action.color} text-white rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-gray-200`}>
+                                    {action.icon}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <h4 className="font-bold text-gray-900 leading-tight mb-1 truncate">{action.title}</h4>
+                                    <p className="text-xs text-gray-500 font-medium leading-relaxed line-clamp-2">{action.description}</p>
+                                </div>
+                                <div className="hidden sm:flex w-8 h-8 bg-gray-50 rounded-full items-center justify-center text-gray-400 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
+                                </div>
+                            </button>
+                        ))}
                     </div>
-                    <button
-                        onClick={() => action.prefill && onAction(action.prefill)}
-                        className="mt-6 w-full py-3 px-4 bg-gray-50 hover:bg-gray-100 text-gray-900 font-bold rounded-xl transition flex items-center justify-center gap-2 group/btn"
-                    >
-                        Registrar
-                        <svg className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                    </button>
                 </div>
             ))}
         </div>
