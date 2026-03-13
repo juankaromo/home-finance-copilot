@@ -136,7 +136,7 @@ export default function DashboardPage() {
       <div className="max-w-4xl mx-auto px-4 pt-16 space-y-16">
         {/* Chat de Copilot (Principal) */}
         <section className="animate-in slide-in-from-top-8 duration-700">
-          <AICopilotChat />
+          <AICopilotChat isDisabled={!analysis || hasActiveJob} />
         </section>
 
         {/* 1. Bloque de Overview */}

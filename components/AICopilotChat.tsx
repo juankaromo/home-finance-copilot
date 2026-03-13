@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 
-export default function AICopilotChat() {
+interface AICopilotChatProps {
+    isDisabled?: boolean;
+}
+
+export default function AICopilotChat({ isDisabled = false }: AICopilotChatProps) {
     const [question, setQuestion] = useState("");
     const [answer, setAnswer] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -10,7 +14,7 @@ export default function AICopilotChat() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!question.trim() || isLoading) return;
+        if (!question.trim() || isLoading || isDisabled) return;
 
         setIsLoading(true);
         setError(null);
@@ -52,15 +56,15 @@ export default function AICopilotChat() {
                                 type="text"
                                 value={question}
                                 onChange={(e) => setQuestion(e.target.value)}
-                                placeholder="Pregúntale a tu Copilot... (ej: ¿puedo ahorrar más este mes?)"
-                                className="w-full bg-transparent border-none focus:ring-0 text-gray-900 font-medium placeholder-gray-400 py-4"
-                                disabled={isLoading}
+                                placeholder={isDisabled ? "Espera a que se cargue el análisis..." : "Pregúntale a tu Copilot... (ej: ¿puedo ahorrar más este mes?)"}
+                                className="w-full bg-transparent border-none focus:ring-0 text-gray-900 font-medium placeholder-gray-400 py-4 disabled:text-gray-400"
+                                disabled={isLoading || isDisabled}
                             />
                         </div>
                         <button
                             type="submit"
-                            disabled={isLoading || !question.trim()}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-black transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-blue-100"
+                            disabled={isLoading || !question.trim() || isDisabled}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-black transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg shadow-blue-100"
                         >
                             {isLoading ? (
                                 <svg className="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg>
