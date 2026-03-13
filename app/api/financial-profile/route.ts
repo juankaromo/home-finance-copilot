@@ -13,18 +13,28 @@ export async function GET() {
     }
 
     let profileData = null;
+    let profileHistories: any[] = [];
 
-    // 1. Obtener Perfil Financiero
+    // 1. Obtener Perfil Financiero (el más reciente)
     try {
       const identifiers = [user.id, user.customId].filter(val => val && val !== 'undefined');
       const profileFormula = `OR(${identifiers.map(id => `{UserId} = '${id}'`).join(',')}, ${identifiers.map(id => `FIND('${id}', {UserId})`).join(',')})`;
 
       const profiles = await airtableBase("FinancialProfiles")
-        .select({ filterByFormula: profileFormula })
+        .select({ 
+          filterByFormula: profileFormula,
+          sort: [{ field: "ProfileCreated", direction: "desc" }]
+        })
         .firstPage();
 
       if (profiles.length > 0) {
         profileData = profiles[0].fields;
+        
+        // Guardar el historial de todos los perfiles
+        profileHistories = profiles.map(p => ({
+          id: p.id,
+          ...p.fields
+        }));
       }
     } catch (err: any) {
       console.error("Error en tabla FinancialProfiles:", err.message);
@@ -169,6 +179,7 @@ export async function GET() {
 
     return NextResponse.json({
       profile: profileData,
+      profileHistories: profileHistories,
       insight: allInsights.length > 0 ? allInsights[0] : null,
       allInsights: allInsights,
       hasActiveJob,
@@ -189,7 +200,7 @@ export async function POST(request: Request) {
 
     const body = await request.json();
 
-    // 1. Buscar si ya existe para actualizar
+    // 1. Verificar si ya existe un perfil previo
     const searchFormula = `OR({UserId} = '${user.id}', {UserId} = '${user.customId}', FIND('${user.id}', {UserId}), FIND('${user.customId}', {UserId}))`;
     const existingRecords = await airtableBase("FinancialProfiles")
       .select({
@@ -197,10 +208,31 @@ export async function POST(request: Request) {
       })
       .firstPage();
 
+    const isUpdate = existingRecords.length > 0;
+
     const fields: any = {
       UserId: [user.id],
     };
 
+    // Si es una actualización, obtener valores previos para campos no editados
+    if (isUpdate) {
+      const previousProfile = existingRecords[0].fields;
+      
+      // Copiar todos los campos del perfil anterior
+      if (previousProfile.MonthlyIncome !== undefined) fields.MonthlyIncome = previousProfile.MonthlyIncome;
+      if (previousProfile.MonthlyExpenses !== undefined) fields.MonthlyExpenses = previousProfile.MonthlyExpenses;
+      if (previousProfile.CurrentSavings !== undefined) fields.CurrentSavings = previousProfile.CurrentSavings;
+      if (previousProfile.MortgageAmount !== undefined) fields.MortgageAmount = previousProfile.MortgageAmount;
+      if (previousProfile.MortgageInterest !== undefined) fields.MortgageInterest = previousProfile.MortgageInterest;
+      if (previousProfile.MortgageYearsRemaining !== undefined) fields.MortgageYearsRemaining = previousProfile.MortgageYearsRemaining;
+      if (previousProfile.LoanAmount !== undefined) fields.LoanAmount = previousProfile.LoanAmount;
+      if (previousProfile.LoanInterest !== undefined) fields.LoanInterest = previousProfile.LoanInterest;
+      if (previousProfile.LoanYearsRemaining !== undefined) fields.LoanYearsRemaining = previousProfile.LoanYearsRemaining;
+      if (previousProfile.Children !== undefined) fields.Children = previousProfile.Children;
+      if (previousProfile.FinancialGoal !== undefined) fields.FinancialGoal = previousProfile.FinancialGoal;
+    }
+
+    // Sobrescribir con los nuevos valores del request
     if (body.monthlyIncome !== undefined) fields.MonthlyIncome = Number(body.monthlyIncome);
     if (body.monthlyExpenses !== undefined) fields.MonthlyExpenses = Number(body.monthlyExpenses);
     if (body.currentSavings !== undefined) fields.CurrentSavings = Number(body.currentSavings);
@@ -213,28 +245,20 @@ export async function POST(request: Request) {
     if (body.children !== undefined) fields.Children = Number(body.children);
     if (body.financialGoal !== undefined) fields.FinancialGoal = body.financialGoal;
 
-    if (existingRecords.length > 0) {
-      await airtableBase("FinancialProfiles").update([
-        {
-          id: existingRecords[0].id,
-          fields,
-        },
-      ]);
-    } else {
-      // Generar un ID único para el perfil
-      const generatedProfileId = createHash("md5")
-        .update(user.customId + "_profile_" + Date.now())
-        .digest("hex")
-        .substring(0, 12);
+    // Generar un ID único para el perfil
+    const generatedProfileId = createHash("md5")
+      .update(user.customId + "_profile_" + Date.now())
+      .digest("hex")
+      .substring(0, 12);
 
-      fields.Id = generatedProfileId;
+    fields.Id = generatedProfileId;
 
-      await airtableBase("FinancialProfiles").create([
-        {
-          fields,
-        },
-      ]);
-    }
+    // Crear siempre un nuevo registro (no actualizar el existente)
+    await airtableBase("FinancialProfiles").create([
+      {
+        fields,
+      },
+    ]);
 
     // 2. Crear un AIJob para recalcular insights
     const jobId = createHash("md5")
@@ -247,7 +271,7 @@ export async function POST(request: Request) {
         fields: {
           Id: jobId,
           UserId: [user.id],
-          JobType: existingRecords.length > 0 ? "periodic_update" : "initial_analysis",
+          JobType: isUpdate ? "periodic_update" : "initial_analysis",
           Status: "pending",
           Payload: JSON.stringify(fields),
           CreatedAt: new Date().toISOString()

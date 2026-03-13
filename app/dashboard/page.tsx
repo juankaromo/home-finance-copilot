@@ -56,8 +56,21 @@ export default function DashboardPage() {
 
       const allEvents = eventsData.events || [];
       const allInsights = profileData.allInsights || [];
+      const profileHistories = profileData.profileHistories || [];
 
-      // 3. Agregar evento inicial de perfil
+      // 3. Convertir historial de perfiles a items del historial
+      const profileChangeItems = profileHistories
+        .filter((p: any) => p.ProfileCreated) // Solo los que tienen fecha de creación
+        .map((p: any, index: number) => ({
+          id: `profile_${p.id}`,
+          Date: p.ProfileCreated,
+          Description: index === profileHistories.length - 1 
+            ? "Perfil financiero inicial creado" 
+            : "Perfil actualizado",
+          type: "profile_change"
+        }));
+
+      // 4. Agregar evento inicial de perfil (mantener para compatibilidad)
       const initialProfileItem: any = {
         id: "initial_profile",
         Date: profileData.profile.ProfileCreated || profileData.profile.ProfileLastModified || new Date().toISOString(),
@@ -66,7 +79,7 @@ export default function DashboardPage() {
       };
 
       // Combinar para el historial unificado y ordenar
-      const combined = [...allEvents, ...allInsights, initialProfileItem];
+      const combined = [...allEvents, ...allInsights, ...profileChangeItems];
       setHistory(combined);
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
@@ -116,10 +129,7 @@ export default function DashboardPage() {
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">H</div>
             <span className="font-bold text-gray-900">HomeFinance</span>
           </div>
-          <div className="flex items-center gap-4 text-sm">
-            <span className="text-gray-500 font-medium tracking-tight">Mi Perfil</span>
-            <LogoutButton />
-          </div>
+          <LogoutButton />
         </div>
       </nav>
 
