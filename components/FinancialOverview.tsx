@@ -13,8 +13,8 @@ export default function FinancialOverview({ profile }: FinancialOverviewProps) {
         { label: "Ahorros", value: `${profile.CurrentSavings}€`, color: "text-blue-600", bg: "bg-blue-50" },
     ];
 
-    const hasMortgage = profile.MortgageAmount > 0;
-    const hasLoan = profile.LoanAmount > 0;
+    const hasMortgage = profile.MortgageInitialAmount > 0;
+    const hasLoan = profile.LoanInitialAmount > 0;
 
     return (
         <div className="space-y-6">
@@ -37,16 +37,20 @@ export default function FinancialOverview({ profile }: FinancialOverviewProps) {
                             </h3>
                             <div className="space-y-3">
                                 <div className="flex justify-between">
-                                    <span className="text-gray-500">Pendiente:</span>
-                                    <span className="font-bold text-gray-900">{profile.MortgageAmount}€</span>
+                                    <span className="text-gray-500">Importe Inicial:</span>
+                                    <span className="font-bold text-gray-900">{profile.MortgageInitialAmount}€</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-500">Importe Actual:</span>
+                                    <span className="font-bold text-gray-900">{profile.MortgageCurrentAmount}€</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-gray-500">Interés:</span>
                                     <span className="font-medium text-gray-900">{profile.MortgageInterest}%</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-gray-500">Tiempo restante:</span>
-                                    <span className="font-medium text-gray-900">{profile.MortgageYearsRemaining} años</span>
+                                    <span className="text-gray-500">Fecha de fin:</span>
+                                    <span className="font-medium text-gray-900">{profile.MortgageEndDate ? new Date(profile.MortgageEndDate).toLocaleDateString() : "N/A"}</span>
                                 </div>
                             </div>
                         </div>
@@ -60,16 +64,20 @@ export default function FinancialOverview({ profile }: FinancialOverviewProps) {
                             </h3>
                             <div className="space-y-3">
                                 <div className="flex justify-between">
-                                    <span className="text-gray-500">Pendiente:</span>
-                                    <span className="font-bold text-gray-900">{profile.LoanAmount}€</span>
+                                    <span className="text-gray-500">Importe Inicial:</span>
+                                    <span className="font-bold text-gray-900">{profile.LoanInitialAmount}€</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-500">Importe Actual:</span>
+                                    <span className="font-bold text-gray-900">{profile.LoanCurrentAmount}€</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-gray-500">Interés:</span>
                                     <span className="font-medium text-gray-900">{profile.LoanInterest}%</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-gray-500">Tiempo restante:</span>
-                                    <span className="font-medium text-gray-900">{profile.LoanYearsRemaining} años</span>
+                                    <span className="text-gray-500">Fecha de fin:</span>
+                                    <span className="font-medium text-gray-900">{profile.LoanEndDate ? new Date(profile.LoanEndDate).toLocaleDateString() : "N/A"}</span>
                                 </div>
                             </div>
                         </div>

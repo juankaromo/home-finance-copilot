@@ -11,12 +11,14 @@ export default function InitialFinancialForm({ onSuccess }: InitialFinancialForm
         monthlyIncome: "",
         monthlyExpenses: "",
         currentSavings: "",
-        mortgageAmount: "",
+        mortgageInitialAmount: "",
+        mortgageCurrentAmount: "",
         mortgageInterest: "",
-        mortgageYearsRemaining: "",
-        loanAmount: "",
+        mortgageEndDate: "",
+        loanInitialAmount: "",
+        loanCurrentAmount: "",
         loanInterest: "",
-        loanYearsRemaining: "",
+        loanEndDate: "",
         children: "",
         financialGoal: "",
     });
@@ -40,12 +42,14 @@ export default function InitialFinancialForm({ onSuccess }: InitialFinancialForm
         // Limpiar campos si se desactivaron los toggles
         const submissionData = {
             ...formData,
-            mortgageAmount: hasMortgage ? formData.mortgageAmount : "0",
+            mortgageInitialAmount: hasMortgage ? formData.mortgageInitialAmount : "0",
+            mortgageCurrentAmount: hasMortgage ? formData.mortgageCurrentAmount : "0",
             mortgageInterest: hasMortgage ? formData.mortgageInterest : "0",
-            mortgageYearsRemaining: hasMortgage ? formData.mortgageYearsRemaining : "0",
-            loanAmount: hasLoan ? formData.loanAmount : "0",
+            mortgageEndDate: hasMortgage ? formData.mortgageEndDate : "",
+            loanInitialAmount: hasLoan ? formData.loanInitialAmount : "0",
+            loanCurrentAmount: hasLoan ? formData.loanCurrentAmount : "0",
             loanInterest: hasLoan ? formData.loanInterest : "0",
-            loanYearsRemaining: hasLoan ? formData.loanYearsRemaining : "0",
+            loanEndDate: hasLoan ? formData.loanEndDate : "",
         };
 
         try {
@@ -171,15 +175,26 @@ export default function InitialFinancialForm({ onSuccess }: InitialFinancialForm
                     </div>
 
                     {hasMortgage && (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 bg-blue-50/30 rounded-2xl border border-blue-100 animate-in fade-in slide-in-from-top-4 duration-300">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-6 bg-blue-50/30 rounded-2xl border border-blue-100 animate-in fade-in slide-in-from-top-4 duration-300">
                             <div>
-                                <label className="block text-xs font-semibold text-blue-700 mb-1 uppercase tracking-wider">Monto Pendiente (€)</label>
+                                <label className="block text-xs font-semibold text-blue-700 mb-1 uppercase tracking-wider">Importe Inicial (€)</label>
                                 <input
                                     type="number"
-                                    name="mortgageAmount"
+                                    name="mortgageInitialAmount"
                                     className="w-full px-4 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition bg-white"
                                     placeholder="150000"
-                                    value={formData.mortgageAmount}
+                                    value={formData.mortgageInitialAmount}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold text-blue-700 mb-1 uppercase tracking-wider">Importe Actual (€)</label>
+                                <input
+                                    type="number"
+                                    name="mortgageCurrentAmount"
+                                    className="w-full px-4 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition bg-white"
+                                    placeholder="120000"
+                                    value={formData.mortgageCurrentAmount}
                                     onChange={handleChange}
                                 />
                             </div>
@@ -196,13 +211,12 @@ export default function InitialFinancialForm({ onSuccess }: InitialFinancialForm
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-semibold text-blue-700 mb-1 uppercase tracking-wider">Años Restantes</label>
+                                <label className="block text-xs font-semibold text-blue-700 mb-1 uppercase tracking-wider">Fecha de Fin</label>
                                 <input
-                                    type="number"
-                                    name="mortgageYearsRemaining"
+                                    type="date"
+                                    name="mortgageEndDate"
                                     className="w-full px-4 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition bg-white"
-                                    placeholder="20"
-                                    value={formData.mortgageYearsRemaining}
+                                    value={formData.mortgageEndDate}
                                     onChange={handleChange}
                                 />
                             </div>
@@ -227,15 +241,26 @@ export default function InitialFinancialForm({ onSuccess }: InitialFinancialForm
                     </div>
 
                     {hasLoan && (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 bg-purple-50/30 rounded-2xl border border-purple-100 animate-in fade-in slide-in-from-top-4 duration-300">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-6 bg-purple-50/30 rounded-2xl border border-purple-100 animate-in fade-in slide-in-from-top-4 duration-300">
                             <div>
-                                <label className="block text-xs font-semibold text-purple-700 mb-1 uppercase tracking-wider">Monto Pendiente (€)</label>
+                                <label className="block text-xs font-semibold text-purple-700 mb-1 uppercase tracking-wider">Importe Inicial (€)</label>
                                 <input
                                     type="number"
-                                    name="loanAmount"
+                                    name="loanInitialAmount"
                                     className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none transition bg-white"
                                     placeholder="5000"
-                                    value={formData.loanAmount}
+                                    value={formData.loanInitialAmount}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold text-purple-700 mb-1 uppercase tracking-wider">Importe Actual (€)</label>
+                                <input
+                                    type="number"
+                                    name="loanCurrentAmount"
+                                    className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none transition bg-white"
+                                    placeholder="3000"
+                                    value={formData.loanCurrentAmount}
                                     onChange={handleChange}
                                 />
                             </div>
@@ -252,13 +277,12 @@ export default function InitialFinancialForm({ onSuccess }: InitialFinancialForm
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-semibold text-purple-700 mb-1 uppercase tracking-wider">Años Restantes</label>
+                                <label className="block text-xs font-semibold text-purple-700 mb-1 uppercase tracking-wider">Fecha de Fin</label>
                                 <input
-                                    type="number"
-                                    name="loanYearsRemaining"
+                                    type="date"
+                                    name="loanEndDate"
                                     className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none transition bg-white"
-                                    placeholder="3"
-                                    value={formData.loanYearsRemaining}
+                                    value={formData.loanEndDate}
                                     onChange={handleChange}
                                 />
                             </div>

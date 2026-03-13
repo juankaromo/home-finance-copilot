@@ -222,12 +222,14 @@ export async function POST(request: Request) {
       if (previousProfile.MonthlyIncome !== undefined) fields.MonthlyIncome = previousProfile.MonthlyIncome;
       if (previousProfile.MonthlyExpenses !== undefined) fields.MonthlyExpenses = previousProfile.MonthlyExpenses;
       if (previousProfile.CurrentSavings !== undefined) fields.CurrentSavings = previousProfile.CurrentSavings;
-      if (previousProfile.MortgageAmount !== undefined) fields.MortgageAmount = previousProfile.MortgageAmount;
+      if (previousProfile.MortgageInitialAmount !== undefined) fields.MortgageInitialAmount = previousProfile.MortgageInitialAmount;
+      if (previousProfile.MortgageCurrentAmount !== undefined) fields.MortgageCurrentAmount = previousProfile.MortgageCurrentAmount;
       if (previousProfile.MortgageInterest !== undefined) fields.MortgageInterest = previousProfile.MortgageInterest;
-      if (previousProfile.MortgageYearsRemaining !== undefined) fields.MortgageYearsRemaining = previousProfile.MortgageYearsRemaining;
-      if (previousProfile.LoanAmount !== undefined) fields.LoanAmount = previousProfile.LoanAmount;
+      if (previousProfile.MortgageEndDate !== undefined) fields.MortgageEndDate = previousProfile.MortgageEndDate;
+      if (previousProfile.LoanInitialAmount !== undefined) fields.LoanInitialAmount = previousProfile.LoanInitialAmount;
+      if (previousProfile.LoanCurrentAmount !== undefined) fields.LoanCurrentAmount = previousProfile.LoanCurrentAmount;
       if (previousProfile.LoanInterest !== undefined) fields.LoanInterest = previousProfile.LoanInterest;
-      if (previousProfile.LoanYearsRemaining !== undefined) fields.LoanYearsRemaining = previousProfile.LoanYearsRemaining;
+      if (previousProfile.LoanEndDate !== undefined) fields.LoanEndDate = previousProfile.LoanEndDate;
       if (previousProfile.Children !== undefined) fields.Children = previousProfile.Children;
       if (previousProfile.FinancialGoal !== undefined) fields.FinancialGoal = previousProfile.FinancialGoal;
     }
@@ -236,12 +238,14 @@ export async function POST(request: Request) {
     if (body.monthlyIncome !== undefined) fields.MonthlyIncome = Number(body.monthlyIncome);
     if (body.monthlyExpenses !== undefined) fields.MonthlyExpenses = Number(body.monthlyExpenses);
     if (body.currentSavings !== undefined) fields.CurrentSavings = Number(body.currentSavings);
-    if (body.mortgageAmount !== undefined) fields.MortgageAmount = Number(body.mortgageAmount);
+    if (body.mortgageInitialAmount !== undefined) fields.MortgageInitialAmount = Number(body.mortgageInitialAmount);
+    if (body.mortgageCurrentAmount !== undefined) fields.MortgageCurrentAmount = Number(body.mortgageCurrentAmount);
     if (body.mortgageInterest !== undefined) fields.MortgageInterest = Number(body.mortgageInterest);
-    if (body.mortgageYearsRemaining !== undefined) fields.MortgageYearsRemaining = Number(body.mortgageYearsRemaining);
-    if (body.loanAmount !== undefined) fields.LoanAmount = Number(body.loanAmount);
+    if (body.mortgageEndDate !== undefined) fields.MortgageEndDate = body.mortgageEndDate;
+    if (body.loanInitialAmount !== undefined) fields.LoanInitialAmount = Number(body.loanInitialAmount);
+    if (body.loanCurrentAmount !== undefined) fields.LoanCurrentAmount = Number(body.loanCurrentAmount);
     if (body.loanInterest !== undefined) fields.LoanInterest = Number(body.loanInterest);
-    if (body.loanYearsRemaining !== undefined) fields.LoanYearsRemaining = Number(body.loanYearsRemaining);
+    if (body.loanEndDate !== undefined) fields.LoanEndDate = body.loanEndDate;
     if (body.children !== undefined) fields.Children = Number(body.children);
     if (body.financialGoal !== undefined) fields.FinancialGoal = body.financialGoal;
 

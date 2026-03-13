@@ -3,12 +3,14 @@ export interface FinancialProfile {
     MonthlyIncome: number;
     MonthlyExpenses: number;
     CurrentSavings: number;
-    MortgageAmount: number;
+    MortgageInitialAmount: number;
+    MortgageCurrentAmount: number;
     MortgageInterest: number;
-    MortgageYearsRemaining: number;
-    LoanAmount: number;
+    MortgageEndDate: string;
+    LoanInitialAmount: number;
+    LoanCurrentAmount: number;
     LoanInterest: number;
-    LoanYearsRemaining: number;
+    LoanEndDate: string;
     Children: number;
     FinancialGoal: string;
 }
