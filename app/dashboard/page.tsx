@@ -154,9 +154,9 @@ export default function DashboardPage() {
           </section>
         )}
 
-        {/* 3. Cálculo de Análisis */}
+        {/* 3. Análisis de la IA */}
         <section className="space-y-6">
-          <h2 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Cálculo de Análisis</h2>
+          <h2 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Análisis de la IA</h2>
           {analysis || hasActiveJob ? (
             <AIAnalysisBlock
               analysis={analysis}

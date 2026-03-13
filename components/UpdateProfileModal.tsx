@@ -14,6 +14,7 @@ export default function UpdateProfileModal({ isOpen, onClose, onSuccess, current
     const [income, setIncome] = useState("");
     const [expenses, setExpenses] = useState("");
     const [savings, setSavings] = useState("");
+    const [goal, setGoal] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
@@ -21,6 +22,7 @@ export default function UpdateProfileModal({ isOpen, onClose, onSuccess, current
             setIncome(currentProfile.MonthlyIncome.toString());
             setExpenses(currentProfile.MonthlyExpenses.toString());
             setSavings(currentProfile.CurrentSavings.toString());
+            setGoal(currentProfile.FinancialGoal || "");
         }
     }, [currentProfile, isOpen]);
 
@@ -37,7 +39,8 @@ export default function UpdateProfileModal({ isOpen, onClose, onSuccess, current
                 body: JSON.stringify({
                     monthlyIncome: Number(income),
                     monthlyExpenses: Number(expenses),
-                    currentSavings: Number(savings)
+                    currentSavings: Number(savings),
+                    financialGoal: goal
                 }),
             });
 
@@ -61,8 +64,8 @@ export default function UpdateProfileModal({ isOpen, onClose, onSuccess, current
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                         </div>
                         <div>
-                            <h2 className="text-xl font-black text-gray-900 tracking-tight">Ajustar Cifras Base</h2>
-                            <p className="text-sm text-gray-500 font-medium">Actualiza tus ingresos y ahorros actuales</p>
+                            <h2 className="text-xl font-black text-gray-900 tracking-tight">Centro de Control</h2>
+                            <p className="text-sm text-gray-500 font-medium">Actualiza tus cifras y objetivos financieros</p>
                         </div>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400">
@@ -72,6 +75,18 @@ export default function UpdateProfileModal({ isOpen, onClose, onSuccess, current
 
                 <form onSubmit={handleSubmit} className="p-8 space-y-6">
                     <div className="grid grid-cols-1 gap-6">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Objetivo Financiero</label>
+                            <input
+                                type="text"
+                                value={goal}
+                                onChange={(e) => setGoal(e.target.value)}
+                                className="w-full bg-gray-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-2xl px-5 py-3.5 text-gray-900 font-bold transition-all outline-none"
+                                placeholder="Ej: Comprar una vivienda, jubilación precoz..."
+                                required
+                            />
+                        </div>
+
                         <div className="space-y-2">
                             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Ingresos Mensuales (€)</label>
                             <input
