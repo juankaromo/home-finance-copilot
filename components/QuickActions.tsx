@@ -17,9 +17,11 @@ interface Action {
 interface QuickActionsProps {
     onAction: (prefill: any) => void;
     onUpdateProfile: () => void;
+    isPremium?: boolean;
+    onAddInvestment?: () => void;
 }
 
-export default function QuickActions({ onAction, onUpdateProfile }: QuickActionsProps) {
+export default function QuickActions({ onAction, onUpdateProfile, isPremium = false, onAddInvestment }: QuickActionsProps) {
     const categories = [
         {
             title: "📈 Impulso y Crecimiento",
@@ -52,6 +54,18 @@ export default function QuickActions({ onAction, onUpdateProfile }: QuickActions
                 }
             ]
         },
+        ...(isPremium ? [{
+            title: "💰 Gestión de Inversiones (Premium)",
+            actions: [
+                {
+                    title: "Agregar Inversión",
+                    description: "Registra nuevos productos de inversión en tu portafolio.",
+                    icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>,
+                    color: "bg-purple-600",
+                    onClick: () => onAddInvestment?.()
+                }
+            ]
+        }] : []),
         {
             title: "⚙️ Ajuste de Perfil Base",
             actions: [

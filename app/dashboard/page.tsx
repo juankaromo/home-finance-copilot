@@ -10,6 +10,7 @@ import QuickActions from "@/components/QuickActions";
 import UnifiedHistory from "@/components/UnifiedHistory";
 import AddEventModal from "@/components/AddEventModal";
 import UpdateProfileModal from "@/components/UpdateProfileModal";
+import AddInvestmentModal from "@/components/AddInvestmentModal";
 import AICopilotChat from "@/components/AICopilotChat";
 
 import LogoutButton from "@/components/LogoutButton";
@@ -20,11 +21,13 @@ export default function DashboardPage() {
   const [profile, setProfile] = useState<FinancialProfile | null>(null);
   const [analysis, setAnalysis] = useState<AIAnalysis | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [investments, setInvestments] = useState<any[]>([]);
   const [hasActiveJob, setHasActiveJob] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [isInvestmentModalOpen, setIsInvestmentModalOpen] = useState(false);
   const [modalPrefill, setModalPrefill] = useState<any>(null);
 
   const fetchData = async (silent = false) => {
@@ -82,6 +85,18 @@ export default function DashboardPage() {
       // Combinar para el historial unificado y ordenar
       const combined = [...allEvents, ...allInsights, ...profileChangeItems];
       setHistory(combined);
+
+      // 5. Fetch inversiones si es premium
+      if (profileData.profile?.IsPremium) {
+        try {
+          const investmentsRes = await fetch("/api/investments");
+          const investmentsData = await investmentsRes.json();
+          setInvestments(investmentsData.investments || []);
+        } catch (err) {
+          console.error("Error fetching investments:", err);
+          setInvestments([]);
+        }
+      }
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
       setProfile(null);
@@ -143,7 +158,7 @@ export default function DashboardPage() {
         {/* 1. Bloque de Overview */}
         <section className="space-y-6">
           <h2 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Visión General</h2>
-          <FinancialOverview profile={profile} />
+          <FinancialOverview profile={profile} investments={investments} />
         </section>
 
         {/* 2. Objetivo Financiero */}
@@ -201,6 +216,8 @@ export default function DashboardPage() {
           <QuickActions
             onAction={handleQuickAction}
             onUpdateProfile={() => setIsUpdateModalOpen(true)}
+            isPremium={profile?.IsPremium === true}
+            onAddInvestment={() => setIsInvestmentModalOpen(true)}
           />
         </section>
 
@@ -225,6 +242,11 @@ export default function DashboardPage() {
         onClose={() => setIsUpdateModalOpen(false)}
         onSuccess={() => fetchData(true)}
         currentProfile={profile}
+      />
+      <AddInvestmentModal
+        isOpen={isInvestmentModalOpen}
+        onClose={() => setIsInvestmentModalOpen(false)}
+        onSuccess={() => fetchData(true)}
       />
     </main>
   );

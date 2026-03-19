@@ -15,6 +15,42 @@ export async function GET() {
     let profileData = null;
     let profileHistories: any[] = [];
 
+    // 0. Obtener datos del usuario (incluyendo IsPremium)
+    let userPremiumStatus = false;
+    try {
+      console.log(`[Premium Check] Buscando usuario con:`, {
+        userId: user.id,
+        userEmail: user.email,
+        userCustomId: user.customId
+      });
+
+      // Buscar por Email (más confiable que ID)
+      const userRecord = await airtableBase("Users")
+        .select({ filterByFormula: `{Email} = '${user.email}'` })
+        .firstPage();
+      
+      console.log(`[Premium Check] Registros encontrados:`, userRecord.length);
+      
+      if (userRecord.length > 0) {
+        const fields = userRecord[0].fields;
+        console.log(`[Premium Check] Campos del usuario encontrados:`, Object.keys(fields));
+        console.log(`[Premium Check] Valores completos:`, fields);
+        
+        // Intentar múltiples nombres de campo
+        userPremiumStatus = 
+          fields.IsPremium === true || 
+          fields.isPremium === true || 
+          fields["Is Premium"] === true ||
+          fields["Premium"] === true;
+          
+        console.log(`[Premium Check] IsPremium status: ${userPremiumStatus}`);
+      } else {
+        console.warn(`[Premium Check] Usuario no encontrado en tabla Users con email: ${user.email}`);
+      }
+    } catch (err: any) {
+      console.error("Error obteniendo IsPremium de tabla Users:", err.message);
+    }
+
     // 1. Obtener Perfil Financiero (el más reciente)
     try {
       const identifiers = [user.id, user.customId].filter(val => val && val !== 'undefined');
@@ -29,6 +65,9 @@ export async function GET() {
 
       if (profiles.length > 0) {
         profileData = profiles[0].fields;
+        
+        // Agregar IsPremium del usuario
+        profileData.IsPremium = userPremiumStatus;
         
         // Guardar el historial de todos los perfiles
         profileHistories = profiles.map(p => ({

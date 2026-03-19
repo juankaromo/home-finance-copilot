@@ -4,9 +4,10 @@ import { FinancialProfile } from "@/types/financial";
 
 interface FinancialOverviewProps {
     profile: FinancialProfile;
+    investments?: any[];
 }
 
-export default function FinancialOverview({ profile }: FinancialOverviewProps) {
+export default function FinancialOverview({ profile, investments = [] }: FinancialOverviewProps) {
     const metrics = [
         { label: "Ingresos", value: `${profile.MonthlyIncome}€`, color: "text-green-600", bg: "bg-green-50" },
         { label: "Gastos", value: `${profile.MonthlyExpenses}€`, color: "text-red-600", bg: "bg-red-50" },
@@ -82,6 +83,46 @@ export default function FinancialOverview({ profile }: FinancialOverviewProps) {
                             </div>
                         </div>
                     )}
+                </div>
+            )}
+
+            {investments && investments.length > 0 && (
+                <div>
+                    <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">💰 Portafolio de Inversiones</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {investments.map((investment: any, idx: number) => (
+                            <div key={idx} className="p-5 rounded-2xl border border-gray-100 bg-white shadow-sm hover:border-purple-200 transition">
+                                <div className="flex items-start justify-between mb-3">
+                                    <div>
+                                        <h4 className="font-bold text-gray-900">{investment.Name}</h4>
+                                        <p className="text-xs text-gray-500 mt-1">{investment.Type}</p>
+                                    </div>
+                                    <span className={`text-xs font-black px-2 py-1 rounded ${
+                                        investment.Status === 'active' 
+                                            ? 'bg-green-100 text-green-700' 
+                                            : 'bg-gray-100 text-gray-600'
+                                    }`}>
+                                        {investment.Status === 'active' ? 'Activo' : 'Inactivo'}
+                                    </span>
+                                </div>
+                                <div className="space-y-2 text-sm">
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-600">Monto:</span>
+                                        <span className="font-bold text-purple-600">${investment.Amount?.toLocaleString() || 0}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-600">Desde:</span>
+                                        <span className="font-medium">{investment.InitialDate ? new Date(investment.InitialDate).toLocaleDateString() : 'N/A'}</span>
+                                    </div>
+                                    {investment.Description && (
+                                        <div className="pt-2 border-t border-gray-100">
+                                            <p className="text-gray-600 text-xs">{investment.Description}</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             )}
         </div>

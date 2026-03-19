@@ -1,6 +1,6 @@
 import { getAuthUser } from "@/lib/auth";
 import { airtableBase } from "@/lib/airtable";
-import { SYSTEM_PROMPT, buildUserMessage } from "@/lib/prompts";
+import { getSystemPrompt, buildUserMessage } from "@/lib/prompts";
 
 export async function POST(request: Request) {
     try {
@@ -44,13 +44,16 @@ export async function POST(request: Request) {
             .firstPage();
         const latestInsight = insightsRes.length > 0 ? insightsRes[0].fields : {};
 
+        // Obtener si el usuario es premium
+        const isPremium = profile.IsPremium === true || profile.isPremium === true;
+
         // 4. Llamar a OpenRouter API directamente con streaming
         const apiKey = process.env.OPENROUTER_API_KEY;
         if (!apiKey) {
             throw new Error("OPENROUTER_API_KEY no configurada");
         }
 
-        const userMessage = buildUserMessage(profile, events, latestInsight, question);
+        const userMessage = buildUserMessage(profile, events, latestInsight, question, isPremium);
 
         const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
             method: 'POST',
@@ -59,11 +62,11 @@ export async function POST(request: Request) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                model: 'openai/gpt-oss-120b',
+                model: 'openai/gpt-oss-120b:free',
                 messages: [
                     {
                         role: 'system',
-                        content: SYSTEM_PROMPT,
+                        content: getSystemPrompt(isPremium),
                     },
                     {
                         role: 'user',
