@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface AICopilotChatProps {
     isDisabled?: boolean;
@@ -8,7 +10,7 @@ interface AICopilotChatProps {
 
 export default function AICopilotChat({ isDisabled = false }: AICopilotChatProps) {
     const [question, setQuestion] = useState("");
-    const [answer, setAnswer] = useState<string | null>(null);
+    const [answer, setAnswer] = useState<string>("");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -18,7 +20,8 @@ export default function AICopilotChat({ isDisabled = false }: AICopilotChatProps
 
         setIsLoading(true);
         setError(null);
-        setAnswer(null);
+        setAnswer("");
+        setQuestion("");
 
         try {
             const res = await fetch("/api/chat", {
@@ -27,12 +30,45 @@ export default function AICopilotChat({ isDisabled = false }: AICopilotChatProps
                 body: JSON.stringify({ question }),
             });
 
-            const data = await res.json();
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.error || "Error al conectar con el Copilot");
+            }
 
-            if (!res.ok) throw new Error(data.error || "Error al conectar con el Copilot");
+            const reader = res.body?.getReader();
+            if (!reader) throw new Error("No response body");
 
-            setAnswer(data.answer);
-            setQuestion("");
+            const decoder = new TextDecoder();
+            let fullText = "";
+            let buffer = "";
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value, { stream: true });
+                buffer += chunk;
+
+                // Procesar líneas completadas
+                const lines = buffer.split('\n');
+                buffer = lines[lines.length - 1]; // Guardar línea incompleta
+
+                for (let i = 0; i < lines.length - 1; i++) {
+                    const line = lines[i].trim();
+                    if (line.startsWith('data: ')) {
+                        try {
+                            const data = JSON.parse(line.slice(6));
+                            const content = data.choices?.[0]?.delta?.content || '';
+                            if (content) {
+                                fullText += content;
+                                setAnswer(fullText);
+                            }
+                        } catch {
+                            // Ignorar líneas que no sean JSON válido
+                        }
+                    }
+                }
+            }
         } catch (err: any) {
             setError(err.message);
         } finally {
@@ -101,8 +137,26 @@ export default function AICopilotChat({ isDisabled = false }: AICopilotChatProps
                                 {error}
                             </div>
                         ) : answer ? (
-                            <div className="text-gray-800 leading-relaxed font-medium text-lg whitespace-pre-wrap">
-                                {answer}
+                            <div className="text-gray-800 leading-relaxed font-medium text-lg prose prose-sm max-w-none">
+                                <ReactMarkdown
+                                    remarkPlugins={[remarkGfm]}
+                                    components={{
+                                        p: ({ node, ...props }) => <p className="mb-3 last:mb-0" {...props} />,
+                                        strong: ({ node, ...props }) => <strong className="font-bold text-gray-900" {...props} />,
+                                        em: ({ node, ...props }) => <em className="italic text-gray-700" {...props} />,
+                                        ul: ({ node, ...props }) => <ul className="list-disc list-inside mb-3 space-y-1" {...props} />,
+                                        ol: ({ node, ...props }) => <ol className="list-decimal list-inside mb-3 space-y-1" {...props} />,
+                                        li: ({ node, ...props }) => <li className="text-gray-800" {...props} />,
+                                        code: ({ node, inline, ...props }: any) => 
+                                            inline ? (
+                                                <code className="bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded text-sm font-mono" {...props} />
+                                            ) : (
+                                                <code className="block bg-gray-100 text-gray-900 px-4 py-3 rounded-lg mb-3 font-mono text-sm overflow-auto" {...props} />
+                                            ),
+                                    }}
+                                >
+                                    {answer}
+                                </ReactMarkdown>
                             </div>
                         ) : isLoading ? (
                             <div className="text-gray-400 font-medium animate-pulse">
@@ -110,10 +164,10 @@ export default function AICopilotChat({ isDisabled = false }: AICopilotChatProps
                             </div>
                         ) : null}
 
-                        {answer && (
+                        {answer && !isLoading && (
                             <div className="pt-4 flex justify-end">
                                 <button
-                                    onClick={() => setAnswer(null)}
+                                    onClick={() => setAnswer("")}
                                     className="text-xs font-bold text-gray-400 hover:text-gray-600 transition-colors"
                                 >
                                     Limpiar chat
