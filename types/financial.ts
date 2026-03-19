@@ -13,6 +13,7 @@ export interface FinancialProfile {
     LoanEndDate: string;
     Children: number;
     FinancialGoal: string;
+    IsPremium?: boolean;
 }
 
 export interface AIRecommendation {
